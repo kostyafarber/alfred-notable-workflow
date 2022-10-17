@@ -940,24 +940,22 @@ Please drop the folder which contains your notes into the User Configuration tab
 				<key>default</key>
 				<string></string>
 				<key>filtermode</key>
-				<integer>0</integer>
+				<integer>1</integer>
 				<key>placeholder</key>
 				<string>Please pick your folder...</string>
 				<key>required</key>
 				<true/>
 			</dict>
 			<key>description</key>
-			<string></string>
+			<string>Where you keep your notes in Notable.</string>
 			<key>label</key>
-			<string>The folder where you keep your notes in Notable.</string>
+			<string>Notes Folder</string>
 			<key>type</key>
 			<string>filepicker</string>
 			<key>variable</key>
 			<string>notes_location</string>
 		</dict>
 	</array>
-	<key>variablesdontexport</key>
-	<array/>
 	<key>version</key>
 	<string>0.9-beta</string>
 	<key>webaddress</key>
