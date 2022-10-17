@@ -55,10 +55,10 @@
 ### Prerequisites
 
 * A valid [Python3](https://www.python.org/downloads/) installation. You can install via [Homebrew]()
-<br>
-  ```sh
-  brew install python
-  ```
+
+```sh
+brew install python
+```
 
 * The beta version of [Notable]() **must** be installed for this workflow to run. It's available at `notable-insiders` [here](https://github.com/notable/notable-insiders/releases).
 
