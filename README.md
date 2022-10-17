@@ -64,7 +64,7 @@ brew install python
 
 ### Installation
 
-1. Download from [GitHub releases]() and double click the file.
+1. Download from [GitHub releases](https://github.com/kostyafarber/alfred-notable-workflow/releases) and double click the file.
 2. Drop the folder where your notes are located in the User Configuration (e.g `~/Dropbox/notes`)
    
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
