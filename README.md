@@ -30,7 +30,7 @@
 <h3 align="center">Notable Alfred</h3>
 
   <p align="center">
-    Search and make notes from <a href=''>Alfred 5</a> in Notable.
+    Search, open and make notes from <a href=''>Alfred 5</a> in Notable.
   </p>
 </div>
 
