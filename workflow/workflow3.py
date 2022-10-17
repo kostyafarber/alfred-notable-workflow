@@ -28,7 +28,7 @@ import json
 import os
 import sys
 
-from .workflow import ICON_WARNING, Workflow
+from .workflow import Workflow
 
 
 class Variables(dict):

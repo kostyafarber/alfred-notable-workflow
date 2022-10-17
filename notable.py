@@ -4,7 +4,6 @@ import os
 import glob
 
 # set paths
-# DATA_DIRECTORY = '/Users/kostyafarber/Dropbox/notes'
 DATA_DIRECTORY = os.getenv("notes_location")
 note_files = glob.glob(DATA_DIRECTORY + "/*.md")
 

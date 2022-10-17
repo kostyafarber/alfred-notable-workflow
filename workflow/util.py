@@ -1,15 +1,6 @@
-#!/usr/bin/env python
-# encoding: utf-8
-#
-# Copyright (c) 2017 Dean Jackson <deanishe@deanishe.net>
-#
-# MIT Licence. See http://opensource.org/licenses/MIT
-#
-# Created on 2017-12-17
-#
+#!/usr/bin/env python3
 
 """A selection of helper functions useful for building workflows."""
-
 
 import atexit
 import errno
@@ -24,6 +15,7 @@ import time
 from collections import namedtuple
 from contextlib import contextmanager
 from threading import Event
+
 
 # JXA scripts to call Alfred's API via the Scripting Bridge
 # {app} is automatically replaced with "Alfred 3" or
@@ -54,100 +46,25 @@ class AcquisitionError(Exception):
 AppInfo = namedtuple("AppInfo", ["name", "path", "bundleid"])
 """Information about an installed application.
 
-Returned by :func:`appinfo`. All attributes are Unicode.
+Returned by :func:`appinfo`.
 
 .. py:attribute:: name
 
-    Name of the application, e.g. ``u'Safari'``.
+    Name of the application, e.g. ``'Safari'``.
 
 .. py:attribute:: path
 
-    Path to the application bundle, e.g. ``u'/Applications/Safari.app'``.
+    Path to the application bundle, e.g. ``'/Applications/Safari.app'``.
 
 .. py:attribute:: bundleid
 
-    Application's bundle ID, e.g. ``u'com.apple.Safari'``.
+    Application's bundle ID, e.g. ``'com.apple.Safari'``.
 
 """
 
 
-def jxa_app_name():
-    """Return name of application to call currently running Alfred.
-
-    .. versionadded: 1.37
-
-    Returns 'Alfred 3' or 'com.runningwithcrayons.Alfred' depending
-    on which version of Alfred is running.
-
-    This name is suitable for use with ``Application(name)`` in JXA.
-
-    Returns:
-        unicode: Application name or ID.
-
-    """
-    if os.getenv("alfred_version", "").startswith("3"):
-        # Alfred 3
-        return "Alfred 3"
-    # Alfred 4+
-    return "com.runningwithcrayons.Alfred"
-
-
-def unicodify(s, encoding="utf-8", norm=None):
-    """Ensure string is Unicode.
-
-    .. versionadded:: 1.31
-
-    Decode encoded strings using ``encoding`` and normalise Unicode
-    to form ``norm`` if specified.
-
-    Args:
-        s (str): String to decode. May also be Unicode.
-        encoding (str, optional): Encoding to use on bytestrings.
-        norm (None, optional): Normalisation form to apply to Unicode string.
-
-    Returns:
-        unicode: Decoded, optionally normalised, Unicode string.
-
-    """
-    if not isinstance(s, str):
-        s = str(s, encoding)
-
-    if norm:
-        from unicodedata import normalize
-
-        s = normalize(norm, s)
-
-    return s
-
-
-def utf8ify(s):
-    """Ensure string is a bytestring.
-
-    .. versionadded:: 1.31
-
-    Returns `str` objects unchanced, encodes `unicode` objects to
-    UTF-8, and calls :func:`str` on anything else.
-
-    Args:
-        s (object): A Python object
-
-    Returns:
-        str: UTF-8 string or string representation of s.
-
-    """
-    if isinstance(s, str):
-        return s
-
-    if isinstance(s, str):
-        return s.encode("utf-8")
-
-    return str(s)
-
-
-def applescriptify(s):
+def applescriptify(string):
     """Escape string for insertion into an AppleScript string.
-
-    .. versionadded:: 1.31
 
     Replaces ``"`` with `"& quote &"`. Use this function if you want
     to insert a string into an AppleScript script:
@@ -156,13 +73,13 @@ def applescriptify(s):
         'g " & quote & "python" & quote & "test'
 
     Args:
-        s (unicode): Unicode string to escape.
+        s (str): String to escape.
 
     Returns:
-        unicode: Escaped string.
+        str: Escaped string.
 
     """
-    return s.replace('"', '" & quote & "')
+    return string.replace('"', '" & quote & "')
 
 
 def run_command(cmd, **kwargs):
@@ -188,8 +105,6 @@ def run_command(cmd, **kwargs):
 def run_applescript(script, *args, **kwargs):
     """Execute an AppleScript script and return its output.
 
-    .. versionadded:: 1.31
-
     Run AppleScript either by filepath or code. If ``script`` is a valid
     filepath, that script will be run, otherwise ``script`` is treated
     as code.
@@ -198,13 +113,14 @@ def run_applescript(script, *args, **kwargs):
         script (str, optional): Filepath of script or code to run.
         *args: Optional command-line arguments to pass to the script.
         **kwargs: Pass ``lang`` to run a language other than AppleScript.
-            Any other keyword arguments are passed to :func:`run_command`.
+            Any other keyword arguments are passed to :func:`~subprocess.run`.
 
     Returns:
         str: Output of run command.
 
     """
     lang = "AppleScript"
+
     if "lang" in kwargs:
         lang = kwargs["lang"]
         del kwargs["lang"]
@@ -224,8 +140,6 @@ def run_applescript(script, *args, **kwargs):
 def run_jxa(script, *args):
     """Execute a JXA script and return its output.
 
-    .. versionadded:: 1.31
-
     Wrapper around :func:`run_applescript` that passes ``lang=JavaScript``.
 
     Args:
@@ -242,8 +156,6 @@ def run_jxa(script, *args):
 def run_trigger(name, bundleid=None, arg=None):
     """Call an Alfred External Trigger.
 
-    .. versionadded:: 1.31
-
     If ``bundleid`` is not specified, the bundle ID of the calling
     workflow is used.
 
@@ -254,8 +166,9 @@ def run_trigger(name, bundleid=None, arg=None):
 
     """
     bundleid = bundleid or os.getenv("alfred_workflow_bundleid")
-    appname = jxa_app_name()
+    appname = "com.runningwithcrayons.Alfred"
     opts = {"inWorkflow": bundleid}
+
     if arg:
         opts["withArgument"] = arg
 
@@ -264,28 +177,23 @@ def run_trigger(name, bundleid=None, arg=None):
         arg=json.dumps(name),
         opts=json.dumps(opts, sort_keys=True),
     )
-
     run_applescript(script, lang="JavaScript")
 
 
 def set_theme(theme_name):
     """Change Alfred's theme.
 
-    .. versionadded:: 1.39.0
-
     Args:
-        theme_name (unicode): Name of theme Alfred should use.
+        theme_name (str): Name of theme Alfred should use.
 
     """
-    appname = jxa_app_name()
+    appname = "com.runningwithcrayons.Alfred"
     script = JXA_SET_THEME.format(app=json.dumps(appname), arg=json.dumps(theme_name))
     run_applescript(script, lang="JavaScript")
 
 
 def set_config(name, value, bundleid=None, exportable=False):
     """Set a workflow variable in ``info.plist``.
-
-    .. versionadded:: 1.33
 
     If ``bundleid`` is not specified, the bundle ID of the calling
     workflow is used.
@@ -299,22 +207,22 @@ def set_config(name, value, bundleid=None, exportable=False):
 
     """
     bundleid = bundleid or os.getenv("alfred_workflow_bundleid")
-    appname = jxa_app_name()
-    opts = {"toValue": value, "inWorkflow": bundleid, "exportable": exportable}
-
+    appname = "com.runningwithcrayons.Alfred"
+    opts = {
+        "toValue": value,
+        "inWorkflow": bundleid,
+        "exportable": exportable,
+    }
     script = JXA_SET_CONFIG.format(
         app=json.dumps(appname),
         arg=json.dumps(name),
         opts=json.dumps(opts, sort_keys=True),
     )
-
     run_applescript(script, lang="JavaScript")
 
 
 def unset_config(name, bundleid=None):
     """Delete a workflow variable from ``info.plist``.
-
-    .. versionadded:: 1.33
 
     If ``bundleid`` is not specified, the bundle ID of the calling
     workflow is used.
@@ -325,31 +233,27 @@ def unset_config(name, bundleid=None):
 
     """
     bundleid = bundleid or os.getenv("alfred_workflow_bundleid")
-    appname = jxa_app_name()
+    appname = "com.runningwithcrayons.Alfred"
     opts = {"inWorkflow": bundleid}
-
     script = JXA_UNSET_CONFIG.format(
         app=json.dumps(appname),
         arg=json.dumps(name),
         opts=json.dumps(opts, sort_keys=True),
     )
-
     run_applescript(script, lang="JavaScript")
 
 
 def search_in_alfred(query=None):
     """Open Alfred with given search query.
 
-    .. versionadded:: 1.39.0
-
     Omit ``query`` to simply open Alfred's main window.
 
     Args:
-        query (unicode, optional): Search query.
+        query (str, optional): Search query.
 
     """
     query = query or ""
-    appname = jxa_app_name()
+    appname = "com.runningwithcrayons.Alfred"
     script = JXA_SEARCH.format(app=json.dumps(appname), arg=json.dumps(query))
     run_applescript(script, lang="JavaScript")
 
@@ -357,13 +261,11 @@ def search_in_alfred(query=None):
 def browse_in_alfred(path):
     """Open Alfred's filesystem navigation mode at ``path``.
 
-    .. versionadded:: 1.39.0
-
     Args:
-        path (unicode): File or directory path.
+        path (str): File or directory path.
 
     """
-    appname = jxa_app_name()
+    appname = "com.runningwithcrayons.Alfred"
     script = JXA_BROWSE.format(app=json.dumps(appname), arg=json.dumps(path))
     run_applescript(script, lang="JavaScript")
 
@@ -371,13 +273,11 @@ def browse_in_alfred(path):
 def action_in_alfred(paths):
     """Action the give filepaths in Alfred.
 
-    .. versionadded:: 1.39.0
-
     Args:
-        paths (list): Unicode paths to files/directories to action.
+        paths (list): Paths to files/directories to action.
 
     """
-    appname = jxa_app_name()
+    appname = "com.runningwithcrayons.Alfred"
     script = JXA_ACTION.format(app=json.dumps(appname), arg=json.dumps(paths))
     run_applescript(script, lang="JavaScript")
 
@@ -385,28 +285,23 @@ def action_in_alfred(paths):
 def reload_workflow(bundleid=None):
     """Tell Alfred to reload a workflow from disk.
 
-    .. versionadded:: 1.39.0
-
     If ``bundleid`` is not specified, the bundle ID of the calling
     workflow is used.
 
     Args:
-        bundleid (unicode, optional): Bundle ID of workflow to reload.
+        bundleid (str, optional): Bundle ID of workflow to reload.
 
     """
     bundleid = bundleid or os.getenv("alfred_workflow_bundleid")
-    appname = jxa_app_name()
+    appname = "com.runningwithcrayons.Alfred"
     script = JXA_RELOAD_WORKFLOW.format(
         app=json.dumps(appname), arg=json.dumps(bundleid)
     )
-
     run_applescript(script, lang="JavaScript")
 
 
 def appinfo(name):
     """Get information about an installed application.
-
-    .. versionadded:: 1.31
 
     Args:
         name (str): Name of application to look up.
@@ -424,17 +319,18 @@ def appinfo(name):
         "-onlyin",
         os.path.expanduser("~/Applications"),
         "(kMDItemContentTypeTree == com.apple.application &&"
-        '(kMDItemDisplayName == "{0}" || kMDItemFSName == "{0}.app"))'.format(name),
+        f'(kMDItemDisplayName == "{name}" || kMDItemFSName == "{name}.app"))',
     ]
 
     output = run_command(cmd).strip()
+
     if not output:
         return None
 
-    path = output.split("\n")[0]
-
+    path = output.split("\n", maxsplit=1)[0]
     cmd = ["mdls", "-raw", "-name", "kMDItemCFBundleIdentifier", path]
     bid = run_command(cmd).strip()
+
     if not bid:  # pragma: no cover
         return None
 
@@ -445,45 +341,41 @@ def appinfo(name):
 def atomic_writer(fpath, mode):
     """Atomic file writer.
 
-    .. versionadded:: 1.12
-
     Context manager that ensures the file is only written if the write
     succeeds. The data is first written to a temporary file.
 
     :param fpath: path of file to write to.
-    :type fpath: ``unicode``
+    :type fpath: ``str``
     :param mode: sames as for :func:`open`
     :type mode: string
 
     """
-    suffix = ".{}.tmp".format(os.getpid())
+    suffix = f".{os.getpid()}.tmp"
     temppath = fpath + suffix
-    with open(temppath, mode) as fp:
+    with open(temppath, mode) as f:  # pylint: disable=unspecified-encoding
         try:
-            yield fp
+            yield f
             os.rename(temppath, fpath)
         finally:
             try:
                 os.remove(temppath)
-            except OSError:
+            except (OSError, IOError):
                 pass
 
 
-class LockFile(object):
+class LockFile:
     """Context manager to protect filepaths with lockfiles.
-
-    .. versionadded:: 1.13
 
     Creates a lockfile alongside ``protected_path``. Other ``LockFile``
     instances will refuse to lock the same path.
 
     >>> path = '/path/to/file'
     >>> with LockFile(path):
-    >>>     with open(path, 'w') as fp:
-    >>>         fp.write(data)
+    >>>     with open(path, 'wb') as f:
+    >>>         f.write(data)
 
     Args:
-        protected_path (unicode): File to protect with a lockfile
+        protected_path (str): File to protect with a lockfile
         timeout (float, optional): Raises an :class:`AcquisitionError`
             if lock cannot be acquired within this number of seconds.
             If ``timeout`` is 0 (the default), wait forever.
@@ -493,7 +385,7 @@ class LockFile(object):
     Attributes:
         delay (float): How often to check (in seconds) whether the lock
             can be acquired.
-        lockfile (unicode): Path of the lockfile.
+        lockfile (str): Path of the lockfile.
         timeout (float): How long to wait to acquire the lock.
 
     """
@@ -538,7 +430,7 @@ class LockFile(object):
 
             # Create in append mode so we don't lose any contents
             if self._lockfile is None:
-                self._lockfile = open(self.lockfile, "a")
+                self._lockfile = open(self.lockfile, "a", encoding="utf-8")  # pylint: disable=consider-using-with
 
             # Try to acquire the lock
             try:
@@ -572,10 +464,10 @@ class LockFile(object):
             self._lockfile = None
             try:
                 os.unlink(self.lockfile)
-            except OSError:  # pragma: no cover
+            except (IOError, OSError):  # pragma: no cover
                 pass
 
-            return True  # noqa: B012
+            return True  # pylint: disable=lost-exception
 
     def __enter__(self):
         """Acquire lock."""
@@ -591,10 +483,8 @@ class LockFile(object):
         self.release()  # pragma: no cover
 
 
-class uninterruptible(object):
+class uninterruptible:  # pylint: disable=invalid-name
     """Decorator that postpones SIGTERM until wrapped function returns.
-
-    .. versionadded:: 1.12
 
     .. important:: This decorator is NOT thread-safe.
 
@@ -616,7 +506,9 @@ class uninterruptible(object):
         """Decorate `func`."""
         self.func = func
         functools.update_wrapper(self, func)
+        self.class_name = class_name
         self._caught_signal = None
+        self.old_signal_handler = signal.getsignal(signal.SIGTERM)
 
     def signal_handler(self, signum, frame):
         """Called when process receives SIGTERM."""
@@ -628,7 +520,6 @@ class uninterruptible(object):
         # Register handler for SIGTERM, then call `self.func`
         self.old_signal_handler = signal.getsignal(signal.SIGTERM)
         signal.signal(signal.SIGTERM, self.signal_handler)
-
         self.func(*args, **kwargs)
 
         # Restore old signal handler
@@ -637,11 +528,12 @@ class uninterruptible(object):
         # Handle any signal caught during execution
         if self._caught_signal is not None:
             signum, frame = self._caught_signal
+
             if callable(self.old_signal_handler):
                 self.old_signal_handler(signum, frame)
             elif self.old_signal_handler == signal.SIG_DFL:
                 sys.exit(0)
 
-    def __get__(self, obj=None, klass=None):
+    def __get__(self, obj=None, class_name=None):
         """Decorator API."""
-        return self.__class__(self.func.__get__(obj, klass), klass.__name__)
+        return self.__class__(self.func.__get__(obj, class_name), class_name.__name__)
