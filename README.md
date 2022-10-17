@@ -30,7 +30,7 @@
 <h3 align="center">Notable Alfred</h3>
 
   <p align="center">
-    Search, open and make notes from <a href=''>Alfred 5</a> in Notable.
+    Search, open and make notes from <a href='https://www.alfredapp.com/alfred-5-whats-new/'>Alfred 5</a> in <a href='https://notable.app/'>Notable<a/>.
   </p>
 </div>
 
