@@ -16,8 +16,6 @@ ICON_UPDATE = 'update-icon.png'
 NOTABLE_URI = "notable://"
 NOTABLE_NOTE = "note/"
 
-UPDATE_SETTINGS = {'github_slug': 'kostyafarber/alfred-notable-workflow'}
-
 log = None
 
 def get_notes() -> list:
@@ -73,13 +71,6 @@ def search_key_notes(note: dict) -> str:
 
 
 def main(wf):
-    # is update available?
-    if wf.update_available:
-        wf.add_item('A newer version is available',
-                    '↩ to install update',
-                    autocomplete='workflow:update',
-                    icon=ICON_UPDATE)
-
     # Get query from Alfred
     if len(wf.args):
         query = wf.args[0]
@@ -111,14 +102,13 @@ def main(wf):
             valid=True,
         )
 
-        # let user open note in deafult editor instead
+        # let user open note in default editor instead
         item.add_modifier(key="cmd", arg=note["path"], valid=True)
 
     wf.send_feedback()
 
 
 if __name__ == "__main__":
-    wf = Workflow3(libraries=["./lib"], 
-                    update_settings=UPDATE_SETTINGS)
+    wf = Workflow3(libraries=["./lib"]) 
     log = wf.logger
     sys.exit(wf.run(main))

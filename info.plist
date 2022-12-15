@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>bundleid</key>
-	<string>come.alfredapp.notable</string>
+	<string>com.alfredapp.notable</string>
 	<key>category</key>
 	<string>Tools</string>
 	<key>connections</key>
@@ -524,7 +524,7 @@ end tell</string>
 			<key>config</key>
 			<dict>
 				<key>seconds</key>
-				<string>1</string>
+				<string>1.5</string>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.utility.delay</string>
@@ -765,7 +765,7 @@ end tell</string>
 			<key>config</key>
 			<dict>
 				<key>seconds</key>
-				<string>1</string>
+				<string>1.5</string>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.utility.delay</string>
@@ -956,10 +956,8 @@ Please drop the folder which contains your notes into the User Configuration tab
 			<string>notes_location</string>
 		</dict>
 	</array>
-	<key>variablesdontexport</key>
-	<array/>
 	<key>version</key>
-	<string>1.0.0</string>
+	<string>1.0.1</string>
 	<key>webaddress</key>
 	<string>https://github.com/kostyafarber/alfred-notable-workflow</string>
 </dict>
